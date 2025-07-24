@@ -22,4 +22,13 @@ public class ItemRequest {
     private Long requestor; //Пользователь создавший запрос
 
     private LocalDateTime created; //Дата и время создания
+
+    public ItemRequest(ItemRequest other) {
+        if (other != null) {
+            this.id = other.id;
+            this.description = other.description;
+            this.requestor = other.requestor;
+            this.created = other.created;
+        }
+    }
 }

@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.service;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemRequest;
@@ -15,13 +14,13 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    @Autowired
     private final ItemStorage itemStorage;
     private final UserService userService;
 
@@ -80,12 +79,12 @@ public class ItemServiceImpl implements ItemService {
             return Collections.emptyList();
         }
 
-        String searchText = text.toLowerCase();
+        String searchText = text.toLowerCase(Locale.ROOT);
         return itemStorage.findAll().stream()
                 .filter(item -> item.getAvailable() != null && item.getAvailable())
                 .filter(item -> item.getName() != null && item.getDescription() != null)
-                .filter(item -> item.getName().toLowerCase().contains(searchText) ||
-                        item.getDescription().toLowerCase().contains(searchText))
+                .filter(item -> item.getName().toLowerCase(Locale.ROOT).contains(searchText) ||
+                        item.getDescription().toLowerCase(Locale.ROOT).contains(searchText))
                 .map(ItemMapper::toItemResponse)
                 .collect(Collectors.toList());
     }

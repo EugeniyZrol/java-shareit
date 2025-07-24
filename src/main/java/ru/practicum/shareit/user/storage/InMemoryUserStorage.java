@@ -14,6 +14,7 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> users = new HashMap<>();
+    private long currentId = 1;
 
     @Override
     public User create(User user) {
@@ -64,11 +65,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private long getNextId() {
-        long currentMaxId = users.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        return currentId++;
     }
 }
