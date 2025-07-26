@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class UserRequest {
+
     public interface Create extends Default {}
+
     public interface Update extends Default {}
 
     @NotBlank(message = "Имя не может быть пустым", groups = Create.class)
