@@ -1,14 +1,13 @@
 package ru.practicum.shareit.user.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.DuplicatedDataException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserRequest;
 import ru.practicum.shareit.user.dto.UserResponse;
-import ru.practicum.shareit.user.dto.UserUpdateRequest;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.storage.UserStorage;
 
@@ -20,28 +19,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final UserMapper userMapper;
 
     @Override
-    public UserResponse create(@Valid UserRequest userRequest) {
+    public UserResponse create(@Validated(UserRequest.Create.class) UserRequest userRequest) {
         if (userStorage.existsByEmail(userRequest.getEmail())) {
             throw new DuplicatedDataException("Email уже используется");
         }
-        User user = UserMapper.toUser(userRequest);
+        User user = userMapper.toUser(userRequest);
         User createdUser = userStorage.create(user);
-        return UserMapper.toUserResponse(createdUser);
+        return userMapper.toUserResponse(createdUser);
     }
 
     @Override
-    public UserResponse update(Long userId, @Valid UserUpdateRequest userUpdateRequest) {
+    public UserResponse update(Long userId, @Validated(UserRequest.Update.class) UserRequest userRequest) {
         User existingUser = userStorage.findById(userId);
 
-        if (userUpdateRequest.getEmail() != null) {
-            validateEmailUniqueness(userUpdateRequest.getEmail(), userId);
+        if (userRequest.getEmail() != null) {
+            validateEmailUniqueness(userRequest.getEmail(), userId);
         }
 
-        UserMapper.updateUserFromRequest(userUpdateRequest, existingUser);
+        userMapper.updateUserFromRequest(userRequest, existingUser);
         User updatedUser = userStorage.update(existingUser);
-        return UserMapper.toUserResponse(updatedUser);
+        return userMapper.toUserResponse(updatedUser);
     }
 
     @Override
@@ -52,13 +52,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getUserById(Long userId) {
         User user = userStorage.findById(userId);
-        return UserMapper.toUserResponse(user);
+        return userMapper.toUserResponse(user);
     }
 
     @Override
     public List<UserResponse> findAll() {
         return userStorage.findAll().stream()
-                .map(UserMapper::toUserResponse)
+                .map(userMapper::toUserResponse)
                 .collect(Collectors.toList());
     }
 

@@ -1,9 +1,9 @@
 package ru.practicum.shareit.item.service;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemRequest;
 import ru.practicum.shareit.item.dto.ItemResponse;
@@ -23,21 +23,22 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
     private final UserService userService;
+    private final ItemMapper itemMapper;
 
     @Override
-    public ItemResponse addItem(@Valid ItemRequest itemRequest, Long ownerId) {
+    public ItemResponse addItem(@Validated(ItemRequest.Create.class) ItemRequest itemRequest, Long ownerId) {
         userService.getUserById(ownerId);
 
-        Item item = ItemMapper.toItem(itemRequest);
+        Item item = itemMapper.toItem(itemRequest);
         item.setOwner(ownerId);
         Item savedItem = itemStorage.save(item);
 
         log.info("Добавлена новая вещь: {}", savedItem);
-        return ItemMapper.toItemResponse(savedItem);
+        return itemMapper.toItemResponse(savedItem);
     }
 
     @Override
-    public ItemResponse updateItem(Long itemId, ItemRequest itemRequest, Long ownerId) {
+    public ItemResponse updateItem(Long itemId, @Validated(ItemRequest.Update.class) ItemRequest itemRequest, Long ownerId) {
         Item existingItem = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
 
@@ -51,25 +52,26 @@ public class ItemServiceImpl implements ItemService {
         if (itemRequest.getDescription() != null) {
             existingItem.setDescription(itemRequest.getDescription());
         }
-        existingItem.setAvailable(itemRequest.getAvailable());
-
+        if (itemRequest.getAvailable() != null) {
+            existingItem.setAvailable(itemRequest.getAvailable());
+        }
 
         Item updatedItem = itemStorage.save(existingItem);
-        return ItemMapper.toItemResponse(updatedItem);
+        return itemMapper.toItemResponse(updatedItem);
     }
 
     @Override
     public ItemResponse getItemById(Long itemId) {
         Item item = itemStorage.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
-        return ItemMapper.toItemResponse(item);
+        return itemMapper.toItemResponse(item);
     }
 
     @Override
     public List<ItemResponse> getAllItemsByOwner(Long ownerId) {
         List<Item> items = itemStorage.findAllByOwner(ownerId);
         return items.stream()
-                .map(ItemMapper::toItemResponse)
+                .map(itemMapper::toItemResponse)
                 .collect(Collectors.toList());
     }
 
@@ -85,7 +87,7 @@ public class ItemServiceImpl implements ItemService {
                 .filter(item -> item.getName() != null && item.getDescription() != null)
                 .filter(item -> item.getName().toLowerCase(Locale.ROOT).contains(searchText) ||
                         item.getDescription().toLowerCase(Locale.ROOT).contains(searchText))
-                .map(ItemMapper::toItemResponse)
+                .map(itemMapper::toItemResponse)
                 .collect(Collectors.toList());
     }
 }
