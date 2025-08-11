@@ -10,7 +10,9 @@ import ru.practicum.shareit.user.User;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Getter @Setter @ToString(exclude = "requestor")
+@Getter
+@Setter
+@ToString(exclude = "requestor")
 @Entity
 @Table(name = "requests")
 public class ItemRequest {

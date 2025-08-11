@@ -10,7 +10,9 @@ import ru.practicum.shareit.request.ItemRequest;
 import java.util.List;
 import java.util.Objects;
 
-@Getter @Setter @ToString(exclude = {"request"})
+@Getter
+@Setter
+@ToString(exclude = {"request"})
 @Entity
 @Table(name = "items")
 public class Item {
