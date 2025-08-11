@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15.3
+    container_name: shareit-postgres
+    environment:
+      POSTGRES_DB: shareitdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --lc-collate=C --lc-ctype=en_US.UTF-8'
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - shareit-network
+
+networks:
+  shareit-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

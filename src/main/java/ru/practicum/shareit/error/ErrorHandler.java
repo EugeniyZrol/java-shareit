@@ -8,9 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.exception.ConditionsNotMetException;
-import ru.practicum.shareit.exception.DuplicatedDataException;
-import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,13 +17,68 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler(ValidationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(ValidationException e) {
-        log.error("Ошибка валидации: {}", e.getMessage());
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
+    // Обработчики специфичных исключений (первыми)
+    @ExceptionHandler(SelfBookingException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleSelfBookingException(SelfBookingException e) {
+        return new ErrorResponse("Not Found", e.getMessage());
     }
 
+    @ExceptionHandler(NotOwnerException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleNotOwnerException(NotOwnerException e) {
+        return new ErrorResponse("Forbidden", e.getMessage());
+    }
+
+    @ExceptionHandler(NotAuthorizedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleNotAuthorizedException(NotAuthorizedException e) {
+        return new ErrorResponse("Forbidden", e.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(NotFoundException e) {
+        return new ErrorResponse("Not Found", e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicatedDataException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicateDataException(DuplicatedDataException e) {
+        return new ErrorResponse("Conflict", e.getMessage());
+    }
+
+    @ExceptionHandler(ItemNotAvailableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleItemNotAvailableException(ItemNotAvailableException e) {
+        return new ErrorResponse("Bad Request", e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidBookingTimeException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidBookingTimeException(InvalidBookingTimeException e) {
+        return new ErrorResponse("Bad Request", e.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnsupportedStatusException(UnsupportedStatusException e) {
+        return new ErrorResponse("Bad Request", e.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyProcessedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleAlreadyProcessedException(AlreadyProcessedException e) {
+        return new ErrorResponse("Bad Request", e.getMessage());
+    }
+
+    @ExceptionHandler(ConditionsNotMetException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleConditionsNotMetException(ConditionsNotMetException e) {
+        return new ErrorResponse("Unprocessable Entity", e.getMessage());
+    }
+
+    // Обработчики общих исключений (последними)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentNotValid(MethodArgumentNotValidException e) {
@@ -44,22 +97,11 @@ public class ErrorHandler {
         return new ErrorResponse("Validation Failed", String.join("; ", errors));
     }
 
-    @ExceptionHandler(NotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFoundException(NotFoundException e) {
-        return new ErrorResponse("Not Found", e.getMessage());
-    }
-
-    @ExceptionHandler(DuplicatedDataException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleDuplicateDataException(DuplicatedDataException e) {
-        return new ErrorResponse("Conflict", e.getMessage());
-    }
-
-    @ExceptionHandler(ConditionsNotMetException.class)
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConditionsNotMetException(ConditionsNotMetException e) {
-        return new ErrorResponse("Unprocessable Entity", e.getMessage());
+    public ErrorResponse handleValidationException(ValidationException e) {
+        log.error("Ошибка валидации: {}", e.getMessage());
+        return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
     @ExceptionHandler(Throwable.class)
