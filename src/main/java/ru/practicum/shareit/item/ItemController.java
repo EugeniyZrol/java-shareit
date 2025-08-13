@@ -17,8 +17,10 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping("/{itemId}")
-    public ItemResponse getItemById(@PathVariable Long itemId) {
-        return itemService.getItemById(itemId);
+    public ItemResponse getItemById(
+            @PathVariable Long itemId,
+            @RequestHeader(X_SHARER_USER_ID) Long userId) {
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping

@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.comment.CommentDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,7 +27,5 @@ public class ItemResponse {
     public static class BookingInfo {
         private Long id;
         private Long bookerId;
-        private LocalDateTime start;
-        private LocalDateTime end;
     }
 }

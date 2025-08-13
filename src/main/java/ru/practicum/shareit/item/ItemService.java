@@ -9,7 +9,7 @@ public interface ItemService {
 
     ItemResponse updateItem(Long itemId, ItemRequest itemRequest, Long ownerId);
 
-    ItemResponse getItemById(Long itemId);
+    ItemResponse getItemById(Long itemId, Long userId);
 
     List<ItemResponse> getAllItemsByOwner(Long ownerId);
 

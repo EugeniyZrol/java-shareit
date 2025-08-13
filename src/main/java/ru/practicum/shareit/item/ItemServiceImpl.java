@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import ru.practicum.shareit.booking.BookingInfoContext;
 import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.comment.Comment;
@@ -68,12 +69,12 @@ public class ItemServiceImpl implements ItemService {
         }
 
         Item updatedItem = itemRepository.save(existingItem);
-        return itemMapper.toItemResponse(updatedItem, new BookingInfoContext(bookingRepository));
+        return itemMapper.toItemResponse(updatedItem);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ItemResponse getItemById(Long itemId) {
+    public ItemResponse getItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
 
@@ -81,7 +82,12 @@ public class ItemServiceImpl implements ItemService {
                 .map(itemMapper::toCommentDto)
                 .collect(Collectors.toList());
 
-        ItemResponse response = itemMapper.toItemResponse(item, new BookingInfoContext(bookingRepository));
+        ItemResponse response;
+        if (item.getOwnerId().equals(userId)) {
+            response = itemMapper.toItemResponse(item, getBookingsForItem(itemId));
+        } else {
+            response = itemMapper.toItemResponse(item);
+        }
         response.setComments(comments);
 
         return response;
@@ -89,11 +95,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemResponse> getAllItemsByOwner(Long ownerId) {
-        BookingInfoContext context = new BookingInfoContext(bookingRepository);
         List<Item> items = itemRepository.findByOwnerId(ownerId);
+        if (items.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        // Получаем все комментарии для вещей пользователя
-        Map<Long, List<CommentDto>> comments = commentRepository.findByItemIn(items).stream()
+        List<Long> itemIds = items.stream().map(Item::getId).collect(Collectors.toList());
+
+        Map<Long, List<Booking>> bookingsByItem = bookingRepository.findByItemIdIn(itemIds).stream()
+                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+
+        Map<Long, List<CommentDto>> commentsByItem = commentRepository.findByItemIn(items).stream()
                 .collect(Collectors.groupingBy(
                         c -> c.getItem().getId(),
                         Collectors.mapping(itemMapper::toCommentDto, Collectors.toList())
@@ -101,8 +113,9 @@ public class ItemServiceImpl implements ItemService {
 
         return items.stream()
                 .map(item -> {
-                    ItemResponse response = itemMapper.toItemResponse(item, context);
-                    response.setComments(comments.getOrDefault(item.getId(), Collections.emptyList()));
+                    List<Booking> itemBookings = bookingsByItem.getOrDefault(item.getId(), Collections.emptyList());
+                    ItemResponse response = itemMapper.toItemResponse(item, itemBookings);
+                    response.setComments(commentsByItem.getOrDefault(item.getId(), Collections.emptyList()));
                     return response;
                 })
                 .collect(Collectors.toList());
@@ -136,5 +149,9 @@ public class ItemServiceImpl implements ItemService {
         Comment savedComment = commentRepository.save(comment);
         log.info("Комментарий сохранён: ID={}, ItemID={}, AuthorID={}", savedComment.getId(), itemId, userId);
         return itemMapper.toCommentDto(savedComment);
+    }
+
+    private List<Booking> getBookingsForItem(Long itemId) {
+        return bookingRepository.findByItemIdAndStatus(itemId, BookingStatus.APPROVED);
     }
 }

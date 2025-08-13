@@ -11,9 +11,7 @@ import jakarta.validation.groups.Default;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRequest {
-
     public interface Create extends Default {}
-
     public interface Update extends Default {}
 
     @NotBlank(message = "Название должно быть указано", groups = Create.class)
@@ -25,5 +23,5 @@ public class ItemRequest {
     @NotNull(message = "Статус доступности должен быть указан", groups = Create.class)
     private Boolean available;
 
-    private Long request;
+    private ItemRequest request;
 }

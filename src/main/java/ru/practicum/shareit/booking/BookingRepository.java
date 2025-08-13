@@ -39,23 +39,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByItemOwnerIdAndStatus(
             Long ownerId, BookingStatus status, Pageable pageable);
 
-    // Методы для получения информации о бронированиях конкретной вещи
-    @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.id = :itemId " +
-            "AND b.status = 'APPROVED' " +
-            "AND b.end < :currentTime " +
-            "ORDER BY b.end DESC")
-    List<Booking> findLastBooking(@Param("itemId") Long itemId,
-                                  @Param("currentTime") LocalDateTime currentTime);
-
-    @Query("SELECT b FROM Booking b " +
-            "WHERE b.item.id = :itemId " +
-            "AND b.status = 'APPROVED' " +
-            "AND b.start > :currentTime " +
-            "ORDER BY b.start ASC")
-    List<Booking> findNextBooking(@Param("itemId") Long itemId,
-                                  @Param("currentTime") LocalDateTime currentTime);
-
     @Query("SELECT CASE WHEN COUNT(b) > 0 THEN true ELSE false END " +
             "FROM Booking b " +
             "WHERE b.booker.id = :bookerId " +
@@ -79,4 +62,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("status") BookingStatus status);
+
+    List<Booking> findByItemIdIn(List<Long> itemIds);
+
+    List<Booking> findByItemIdAndStatus(Long itemId, BookingStatus status);
+
+
 }
