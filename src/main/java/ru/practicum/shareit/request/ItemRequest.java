@@ -1,34 +1,45 @@
 package ru.practicum.shareit.request;
 
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
-@EqualsAndHashCode(of = {"id"})
-@NoArgsConstructor
+@Getter
+@Setter
+@ToString(exclude = "requestor")
+@Entity
+@Table(name = "requests")
 public class ItemRequest {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private Long id; // Уникальный идентификатор запроса
+    @NotBlank
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String description;
 
-    @NotBlank(message = "описание не может быть пустым")
-    private String description; // Текст запроса содержащий описание
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requestor_id", nullable = false)
+    private User requestor;
 
-    @NotNull(message = "Пользователь должен быть указан")
-    private Long requestor; //Пользователь создавший запрос
+    @Column(nullable = false)
+    private LocalDateTime created = LocalDateTime.now();
 
-    private LocalDateTime created; //Дата и время создания
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemRequest)) return false;
+        return id != null && id.equals(((ItemRequest) o).getId());
+    }
 
-    public ItemRequest(ItemRequest other) {
-        if (other != null) {
-            this.id = other.id;
-            this.description = other.description;
-            this.requestor = other.requestor;
-            this.created = other.created;
-        }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
