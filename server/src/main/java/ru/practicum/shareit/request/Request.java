@@ -5,17 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
 @Setter
-@ToString(exclude = "requestor")
 @Entity
 @Table(name = "requests")
-public class ItemRequest {
+public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,15 +32,27 @@ public class ItemRequest {
     @Column(nullable = false)
     private LocalDateTime created = LocalDateTime.now();
 
+    @OneToMany(mappedBy = "request", fetch = FetchType.LAZY)
+    private List<Item> items;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ItemRequest)) return false;
-        return id != null && id.equals(((ItemRequest) o).getId());
+        if (!(o instanceof Request)) return false;
+        return id != null && id.equals(((Request) o).getId());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", created=" + created +
+                '}';
     }
 }

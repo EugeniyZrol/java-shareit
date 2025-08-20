@@ -24,5 +24,5 @@ public class ItemRequest {
     @NotNull(message = "Статус доступности должен быть указан", groups = Create.class)
     private Boolean available;
 
-    private ItemRequest request;
+    private Long requestId;
 }

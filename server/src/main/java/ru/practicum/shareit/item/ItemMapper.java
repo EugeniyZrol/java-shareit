@@ -17,7 +17,7 @@ public interface ItemMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "ownerId", ignore = true)
-    @Mapping(target = "request", ignore = true)
+    @Mapping(target = "request", ignore = true) // Обрабатывается в сервисе
     @Mapping(target = "comments", ignore = true)
     @Mapping(target = "name", source = "itemRequest.name")
     @Mapping(target = "description", source = "itemRequest.description")

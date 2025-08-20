@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.shareit.item.comment.Comment;
-import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.Request;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,7 +34,7 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")
-    private ItemRequest request;
+    private Request request;
 
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<Comment> comments;

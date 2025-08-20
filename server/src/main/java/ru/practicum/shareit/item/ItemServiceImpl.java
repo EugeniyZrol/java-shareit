@@ -13,6 +13,8 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -31,6 +33,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final RequestRepository itemRequestRepository; // Добавляем репозиторий запросов
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
@@ -43,8 +46,15 @@ public class ItemServiceImpl implements ItemService {
 
         Item item = itemMapper.toItem(itemRequest);
         item.setOwnerId(ownerId);
-        Item savedItem = itemRepository.save(item);
 
+        // Обрабатываем requestId, если он указан
+        if (itemRequest.getRequestId() != null) {
+            Request request = itemRequestRepository.findById(itemRequest.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemRequest.getRequestId() + " не найден"));
+            item.setRequest(request);
+        }
+
+        Item savedItem = itemRepository.save(item);
         return itemMapper.toItemResponse(savedItem);
     }
 
@@ -68,10 +78,21 @@ public class ItemServiceImpl implements ItemService {
             existingItem.setAvailable(itemRequest.getAvailable());
         }
 
+        // Обновляем request, если указан новый requestId
+        if (itemRequest.getRequestId() != null) {
+            Request request = itemRequestRepository.findById(itemRequest.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemRequest.getRequestId() + " не найден"));
+            existingItem.setRequest(request);
+        } else if (itemRequest.getRequestId() == null && existingItem.getRequest() != null) {
+            // Если requestId явно установлен в null, удаляем связь
+            existingItem.setRequest(null);
+        }
+
         Item updatedItem = itemRepository.save(existingItem);
         return itemMapper.toItemResponse(updatedItem);
     }
 
+    // Остальные методы остаются без изменений
     @Override
     @Transactional(readOnly = true)
     public ItemResponse getItemById(Long itemId, Long userId) {
