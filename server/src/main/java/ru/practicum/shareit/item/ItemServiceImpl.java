@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
@@ -33,21 +32,20 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final RequestRepository itemRequestRepository; // Добавляем репозиторий запросов
+    private final RequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
     @Override
     @Transactional
-    public ItemResponse addItem(@Validated(ItemRequest.Create.class) ItemRequest itemRequest, Long ownerId) {
+    public ItemResponse addItem(ItemRequest itemRequest, Long ownerId) {
         userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + ownerId + " не найден"));
 
         Item item = itemMapper.toItem(itemRequest);
         item.setOwnerId(ownerId);
 
-        // Обрабатываем requestId, если он указан
         if (itemRequest.getRequestId() != null) {
             Request request = itemRequestRepository.findById(itemRequest.getRequestId())
                     .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemRequest.getRequestId() + " не найден"));
@@ -60,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemResponse updateItem(Long itemId, @Validated(ItemRequest.Update.class) ItemRequest itemRequest, Long ownerId) {
+    public ItemResponse updateItem(Long itemId, ItemRequest itemRequest, Long ownerId) {
         Item existingItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
 
@@ -78,13 +76,11 @@ public class ItemServiceImpl implements ItemService {
             existingItem.setAvailable(itemRequest.getAvailable());
         }
 
-        // Обновляем request, если указан новый requestId
         if (itemRequest.getRequestId() != null) {
             Request request = itemRequestRepository.findById(itemRequest.getRequestId())
                     .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemRequest.getRequestId() + " не найден"));
             existingItem.setRequest(request);
         } else if (itemRequest.getRequestId() == null && existingItem.getRequest() != null) {
-            // Если requestId явно установлен в null, удаляем связь
             existingItem.setRequest(null);
         }
 
@@ -92,7 +88,6 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemResponse(updatedItem);
     }
 
-    // Остальные методы остаются без изменений
     @Override
     @Transactional(readOnly = true)
     public ItemResponse getItemById(Long itemId, Long userId) {

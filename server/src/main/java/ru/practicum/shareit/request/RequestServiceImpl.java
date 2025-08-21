@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class RequestServiceImpl implements RequestService {
     private final RequestRepository requestRepository;
     private final UserRepository userRepository;
-    private final RequestMapper requestMapper;;
+    private final RequestMapper requestMapper;
 
     @Override
     @Transactional

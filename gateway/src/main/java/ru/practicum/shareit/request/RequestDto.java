@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +15,12 @@ import java.util.List;
 @AllArgsConstructor
 public class RequestDto {
     private Long id;
+
+    @NotBlank(message = "Описание запроса не может быть пустым")
     private String description;
+
     private LocalDateTime created;
+
     private List<ItemResponseDto> items;
 
     @Data

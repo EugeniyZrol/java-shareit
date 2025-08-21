@@ -2,9 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @Slf4j
@@ -25,13 +23,13 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponse create(@Validated(UserRequest.Create.class) @RequestBody UserRequest userRequest) {
+    public UserResponse create(@RequestBody UserRequest userRequest) { // @Validated удален
         return userService.create(userRequest);
     }
 
     @PatchMapping("/{userId}")
     public UserResponse update(@PathVariable Long userId,
-                               @Validated(UserRequest.Update.class) @RequestBody UserRequest userRequest) {
+                               @RequestBody UserRequest userRequest) { // @Validated удален
         return userService.update(userId, userRequest);
     }
 
