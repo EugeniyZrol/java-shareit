@@ -14,13 +14,20 @@ public interface BookingMapper {
     @Mapping(target = "booker", source = "booker")
     BookingResponseDto toBookingResponseDto(Booking booking);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", expression = "java(BookingStatus.WAITING)")
-    @Mapping(target = "item", expression = "java(mapIdToItem(bookingRequestDto.getItemId()))")
-    @Mapping(target = "booker", expression = "java(mapIdToUser(bookerId))")
-    @Mapping(target = "start", source = "bookingRequestDto.start")
-    @Mapping(target = "end", source = "bookingRequestDto.end")
-    Booking toBooking(BookingRequestDto bookingRequestDto, Long bookerId);
+    default Booking toBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
+        if (bookingRequestDto == null) {
+            return null;
+        }
+
+        Booking booking = new Booking();
+        booking.setStart(bookingRequestDto.getStart());
+        booking.setEnd(bookingRequestDto.getEnd());
+        booking.setStatus(BookingStatus.WAITING);
+        booking.setItem(mapIdToItem(bookingRequestDto.getItemId()));
+        booking.setBooker(mapIdToUser(bookerId));
+
+        return booking;
+    }
 
     default Item mapIdToItem(Long itemId) {
         if (itemId == null) {
