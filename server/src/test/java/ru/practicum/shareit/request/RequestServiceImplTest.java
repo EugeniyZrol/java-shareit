@@ -235,4 +235,69 @@ class RequestServiceImplTest {
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    void getAllRequests_WithLargeFrom_ShouldReturnEmptyList() {
+        RequestDto requestDto2 = new RequestDto();
+        requestDto2.setDescription("Нужен молоток");
+        requestService.create(requestDto2, user2.getId());
+
+        List<RequestDto> result = requestService.getAllRequests(user1.getId(), 100, 10);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getRequestById_WithMultipleItems_ShouldReturnAllItems() {
+        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        Request request = requestRepository.findById(createdRequest.getId()).get();
+
+        Item item1 = new Item();
+        item1.setName("Дрель 1");
+        item1.setDescription("Мощная дрель");
+        item1.setAvailable(true);
+        item1.setOwnerId(user2.getId());
+        item1.setRequest(request);
+
+        Item item2 = new Item();
+        item2.setName("Дрель 2");
+        item2.setDescription("Супер дрель");
+        item2.setAvailable(true);
+        item2.setOwnerId(user2.getId());
+        item2.setRequest(request);
+
+        entityManager.persist(item1);
+        entityManager.persist(item2);
+        entityManager.flush();
+        entityManager.clear();
+
+        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+
+        assertNotNull(result.getItems());
+        assertEquals(2, result.getItems().size());
+    }
+
+    @Test
+    void getRequestById_WithUnavailableItem_ShouldStillReturnItem() {
+        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        Request request = requestRepository.findById(createdRequest.getId()).get();
+
+        Item item = new Item();
+        item.setName("Дрель");
+        item.setDescription("Мощная дрель");
+        item.setAvailable(false);
+        item.setOwnerId(user2.getId());
+        item.setRequest(request);
+
+        entityManager.persist(item);
+        entityManager.flush();
+        entityManager.clear();
+
+        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+
+        assertNotNull(result.getItems());
+        assertEquals(1, result.getItems().size());
+        assertEquals("Дрель", result.getItems().getFirst().getName());
+    }
 }

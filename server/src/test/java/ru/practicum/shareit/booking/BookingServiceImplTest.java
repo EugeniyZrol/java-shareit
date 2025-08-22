@@ -5,12 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +38,12 @@ class BookingServiceImplTest {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @MockBean
+    private UserService userService;
+
+    @MockBean
+    private ItemService itemService;
 
     private User owner;
     private User booker;
@@ -218,5 +227,156 @@ class BookingServiceImplTest {
 
         assertThrows(ValidationException.class, () ->
                 bookingService.getUserBookings("ALL", booker.getId(), -1, 10));
+    }
+
+    @Test
+    void createBooking_WhenStartEqualsEnd_ShouldThrowException() {
+        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(1));
+
+        assertThrows(InvalidBookingTimeException.class, () ->
+                bookingService.createBooking(bookingRequestDto, booker.getId()));
+    }
+
+    @Test
+    void createBooking_WhenStartInPast_ShouldThrowException() {
+        bookingRequestDto.setStart(LocalDateTime.now().minusDays(1));
+        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(1));
+
+        assertThrows(InvalidBookingTimeException.class, () ->
+                bookingService.createBooking(bookingRequestDto, booker.getId()));
+    }
+
+    @Test
+    void getUserBookings_WithAllStates_ShouldWork() {
+        bookingService.createBooking(bookingRequestDto, booker.getId());
+
+        BookingRequestDto rejectedDto = new BookingRequestDto();
+        rejectedDto.setItemId(item.getId());
+        rejectedDto.setStart(LocalDateTime.now().plusDays(3));
+        rejectedDto.setEnd(LocalDateTime.now().plusDays(4));
+        BookingResponseDto rejectedBooking = bookingService.createBooking(rejectedDto, booker.getId());
+        bookingService.approveBooking(rejectedBooking.getId(), false, owner.getId());
+
+        assertDoesNotThrow(() -> {
+            bookingService.getUserBookings("ALL", booker.getId(), 0, 10);
+            bookingService.getUserBookings("CURRENT", booker.getId(), 0, 10);
+            bookingService.getUserBookings("PAST", booker.getId(), 0, 10);
+            bookingService.getUserBookings("FUTURE", booker.getId(), 0, 10);
+            bookingService.getUserBookings("WAITING", booker.getId(), 0, 10);
+            bookingService.getUserBookings("REJECTED", booker.getId(), 0, 10);
+        });
+    }
+
+    @Test
+    void getOwnerBookings_WithAllStates_ShouldWork() {
+        bookingService.createBooking(bookingRequestDto, booker.getId());
+
+        assertDoesNotThrow(() -> {
+            bookingService.getOwnerBookings("ALL", owner.getId(), 0, 10);
+            bookingService.getOwnerBookings("CURRENT", owner.getId(), 0, 10);
+            bookingService.getOwnerBookings("PAST", owner.getId(), 0, 10);
+            bookingService.getOwnerBookings("FUTURE", owner.getId(), 0, 10);
+            bookingService.getOwnerBookings("WAITING", owner.getId(), 0, 10);
+            bookingService.getOwnerBookings("REJECTED", owner.getId(), 0, 10);
+        });
+    }
+
+    @Test
+    void getUserBookings_WithZeroSize_ShouldThrowException() {
+        assertThrows(ValidationException.class, () ->
+                bookingService.getUserBookings("ALL", booker.getId(), 0, 0));
+    }
+
+    @Test
+    void getUserBookings_WithNegativeFrom_ShouldThrowException() {
+        assertThrows(ValidationException.class, () ->
+                bookingService.getUserBookings("ALL", booker.getId(), -1, 10));
+    }
+
+    @Test
+    void getUserBookings_WithLargePagination_ShouldReturnEmpty() {
+        List<BookingResponseDto> result = bookingService.getUserBookings("ALL", booker.getId(), 100, 10);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void getOwnerBookings_WithInvalidPagination_ShouldThrowException() {
+        assertThrows(ValidationException.class, () ->
+                bookingService.getOwnerBookings("ALL", owner.getId(), -1, 10));
+    }
+
+    @Test
+    void approveBooking_WhenRejecting_ShouldSetRejectedStatus() {
+        BookingResponseDto createdBooking = bookingService.createBooking(bookingRequestDto, booker.getId());
+
+        BookingResponseDto result = bookingService.approveBooking(createdBooking.getId(), false, owner.getId());
+
+        assertNotNull(result);
+        assertEquals(BookingStatus.REJECTED, result.getStatus());
+    }
+
+    @Test
+    void getBookingById_WhenNotAuthorizedUser_ShouldThrowNotAuthorizedException() {
+        User unauthorizedUser = new User();
+        unauthorizedUser.setName("Unauthorized");
+        unauthorizedUser.setEmail("unauthorized@email.com");
+        unauthorizedUser = userRepository.save(unauthorizedUser);
+
+        BookingResponseDto createdBooking = bookingService.createBooking(bookingRequestDto, booker.getId());
+
+        Long bookingId = createdBooking.getId();
+        Long unauthorizedUserId = unauthorizedUser.getId();
+
+        assertThrows(NotAuthorizedException.class, () ->
+                bookingService.getBookingById(bookingId, unauthorizedUserId));
+    }
+
+    @Test
+    void createBooking_WhenItemJustBecameUnavailable_ShouldThrowConditionsNotMetException() {
+        Item secondItem = new Item();
+        secondItem.setName("Second Item");
+        secondItem.setDescription("Second Description");
+        secondItem.setAvailable(true);
+        secondItem.setOwnerId(owner.getId());
+        secondItem = itemRepository.save(secondItem);
+
+        BookingRequestDto secondRequestDto = new BookingRequestDto();
+        secondRequestDto.setItemId(secondItem.getId());
+        secondRequestDto.setStart(LocalDateTime.now().plusDays(1));
+        secondRequestDto.setEnd(LocalDateTime.now().plusDays(2));
+
+        secondItem.setAvailable(false);
+        itemRepository.save(secondItem);
+
+        Long bookerId = booker.getId();
+
+        assertThrows(ItemNotAvailableException.class, () ->
+                bookingService.createBooking(secondRequestDto, bookerId));
+    }
+
+    @Test
+    void approveBooking_WhenTryingToApproveRejectedBooking_ShouldThrowAlreadyProcessedException() {
+        BookingResponseDto created = bookingService.createBooking(bookingRequestDto, booker.getId());
+        bookingService.approveBooking(created.getId(), false, owner.getId());
+
+        assertThrows(AlreadyProcessedException.class,
+                () -> bookingService.approveBooking(created.getId(), true, owner.getId()));
+    }
+
+    @Test
+    void createBooking_WhenTimeIntersectsWithExistingApprovedBooking_ShouldThrowConflictException() {
+        BookingResponseDto approved = bookingService.createBooking(bookingRequestDto, booker.getId());
+        bookingService.approveBooking(approved.getId(), true, owner.getId());
+
+        BookingRequestDto overlappingDto = new BookingRequestDto();
+        overlappingDto.setItemId(item.getId());
+        overlappingDto.setStart(bookingRequestDto.getStart().plusHours(2)); // пересечение
+        overlappingDto.setEnd(bookingRequestDto.getEnd().minusHours(2));
+
+        assertThrows(ConflictException.class,
+                () -> bookingService.createBooking(overlappingDto, booker.getId()));
     }
 }

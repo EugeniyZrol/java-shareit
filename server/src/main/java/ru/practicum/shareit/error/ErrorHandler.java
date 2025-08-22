@@ -73,12 +73,6 @@ public class ErrorHandler {
         return new ErrorResponse("Bad Request", e.getMessage());
     }
 
-    @ExceptionHandler(ConditionsNotMetException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleConditionsNotMetException(ConditionsNotMetException e) {
-        return new ErrorResponse("Unprocessable Entity", e.getMessage());
-    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
