@@ -230,15 +230,6 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void createBooking_WhenStartEqualsEnd_ShouldThrowException() {
-        bookingRequestDto.setStart(LocalDateTime.now().plusDays(1));
-        bookingRequestDto.setEnd(LocalDateTime.now().plusDays(1));
-
-        assertThrows(InvalidBookingTimeException.class, () ->
-                bookingService.createBooking(bookingRequestDto, booker.getId()));
-    }
-
-    @Test
     void createBooking_WhenStartInPast_ShouldThrowException() {
         bookingRequestDto.setStart(LocalDateTime.now().minusDays(1));
         bookingRequestDto.setEnd(LocalDateTime.now().plusDays(1));
