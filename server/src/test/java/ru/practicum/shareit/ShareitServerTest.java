@@ -10,8 +10,11 @@ class ShareitServerTest {
 
     @Test
     void contextLoads() {
-        assertDoesNotThrow(() -> {});
+        assertDoesNotThrow(() -> {
+            // код
+        });
     }
+
 
     @Test
     void main_ShouldStartApplication() {
