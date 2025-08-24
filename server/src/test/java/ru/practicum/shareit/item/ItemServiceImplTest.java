@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingRepository;
@@ -12,8 +11,6 @@ import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.comment.CommentDto;
-import ru.practicum.shareit.item.comment.CommentRepository;
-import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -27,9 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ItemServiceImplTest {
 
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
     private ItemServiceImpl itemService;
 
     @Autowired
@@ -40,12 +34,6 @@ class ItemServiceImplTest {
 
     @Autowired
     private BookingRepository bookingRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private RequestRepository requestRepository;
 
     private User owner;
     private User booker;
@@ -74,7 +62,7 @@ class ItemServiceImplTest {
     @Test
     void getItemById_WhenItemExists_ShouldReturnItem() {
 
-        ItemResponse result = itemService.getItemById(item.getId(), owner.getId());
+        ItemDtoResponse result = itemService.getItemById(item.getId(), owner.getId());
 
         assertNotNull(result);
         assertEquals(item.getId(), result.getId());
@@ -92,17 +80,17 @@ class ItemServiceImplTest {
     @Test
     void getAllItemsByOwner_WhenOwnerHasItems_ShouldReturnItems() {
 
-        List<ItemResponse> result = itemService.getAllItemsByOwner(owner.getId());
+        List<ItemDtoResponse> result = itemService.getAllItemsByOwner(owner.getId());
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(item.getId(), result.get(0).getId());
+        assertEquals(item.getId(), result.getFirst().getId());
     }
 
     @Test
     void getAllItemsByOwner_WhenOwnerHasNoItems_ShouldReturnEmptyList() {
 
-        List<ItemResponse> result = itemService.getAllItemsByOwner(999L);
+        List<ItemDtoResponse> result = itemService.getAllItemsByOwner(999L);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -111,9 +99,9 @@ class ItemServiceImplTest {
     @Test
     void addItem_WhenValidRequest_ShouldCreateItem() {
 
-        ItemRequest request = new ItemRequest("New Item", "New Description", true, null);
+        ItemDtoRequest request = new ItemDtoRequest("New Item", "New Description", true, null);
 
-        ItemResponse result = itemService.addItem(request, owner.getId());
+        ItemDtoResponse result = itemService.addItem(request, owner.getId());
 
         assertNotNull(result);
         assertEquals("New Item", result.getName());
@@ -125,9 +113,9 @@ class ItemServiceImplTest {
     @Test
     void updateItem_WhenValidUpdate_ShouldUpdateItem() {
 
-        ItemRequest updateRequest = new ItemRequest("Updated Name", "Updated Desc", false, null);
+        ItemDtoRequest updateRequest = new ItemDtoRequest("Updated Name", "Updated Desc", false, null);
 
-        ItemResponse result = itemService.updateItem(item.getId(), updateRequest, owner.getId());
+        ItemDtoResponse result = itemService.updateItem(item.getId(), updateRequest, owner.getId());
 
         assertNotNull(result);
         assertEquals("Updated Name", result.getName());
@@ -138,17 +126,17 @@ class ItemServiceImplTest {
     @Test
     void searchAvailableItems_WhenTextMatches_ShouldReturnItems() {
 
-        List<ItemResponse> result = itemService.searchAvailableItems("test");
+        List<ItemDtoResponse> result = itemService.searchAvailableItems("test");
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(item.getId(), result.get(0).getId());
+        assertEquals(item.getId(), result.getFirst().getId());
     }
 
     @Test
     void searchAvailableItems_WhenTextBlank_ShouldReturnEmptyList() {
 
-        List<ItemResponse> result = itemService.searchAvailableItems("");
+        List<ItemDtoResponse> result = itemService.searchAvailableItems("");
 
         assertNotNull(result);
         assertTrue(result.isEmpty());

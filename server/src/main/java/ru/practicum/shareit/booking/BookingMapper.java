@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemResponse;
+import ru.practicum.shareit.item.ItemDtoResponse;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserResponse;
 
@@ -14,20 +14,13 @@ public interface BookingMapper {
     @Mapping(target = "booker", source = "booker")
     BookingResponseDto toBookingResponseDto(Booking booking);
 
-    default Booking toBooking(BookingRequestDto bookingRequestDto, Long bookerId) {
-        if (bookingRequestDto == null) {
-            return null;
-        }
-
-        Booking booking = new Booking();
-        booking.setStart(bookingRequestDto.getStart());
-        booking.setEnd(bookingRequestDto.getEnd());
-        booking.setStatus(BookingStatus.WAITING);
-        booking.setItem(mapIdToItem(bookingRequestDto.getItemId()));
-        booking.setBooker(mapIdToUser(bookerId));
-
-        return booking;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "status", constant = "WAITING")
+    @Mapping(target = "item", expression = "java(mapIdToItem(dto.getItemId()))")
+    @Mapping(target = "booker", expression = "java(mapIdToUser(bookerId))")
+    @Mapping(target = "start", source = "dto.start")
+    @Mapping(target = "end", source = "dto.end")
+    Booking toBooking(BookingRequestDto dto, Long bookerId);
 
     default Item mapIdToItem(Long itemId) {
         if (itemId == null) {
@@ -47,11 +40,11 @@ public interface BookingMapper {
         return user;
     }
 
-    default ItemResponse mapItemToDto(Item item) {
+    default ItemDtoResponse mapItemToDto(Item item) {
         if (item == null) {
             return null;
         }
-        ItemResponse dto = new ItemResponse();
+        ItemDtoResponse dto = new ItemDtoResponse();
         dto.setId(item.getId());
         dto.setName(item.getName());
         return dto;

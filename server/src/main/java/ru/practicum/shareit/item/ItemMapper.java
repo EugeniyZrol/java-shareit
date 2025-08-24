@@ -22,7 +22,7 @@ public interface ItemMapper {
     @Mapping(target = "name", source = "itemRequest.name")
     @Mapping(target = "description", source = "itemRequest.description")
     @Mapping(target = "available", source = "itemRequest.available")
-    Item toItem(ItemRequest itemRequest);
+    Item toItem(ItemDtoRequest itemRequest);
 
     @Mapping(target = "id", source = "item.id")
     @Mapping(target = "name", source = "item.name")
@@ -33,7 +33,7 @@ public interface ItemMapper {
     @Mapping(target = "lastBooking", source = "bookings", qualifiedByName = "mapLastBooking")
     @Mapping(target = "nextBooking", source = "bookings", qualifiedByName = "mapNextBooking")
     @Mapping(target = "comments", ignore = true)
-    ItemResponse toItemResponse(Item item, List<Booking> bookings);
+    ItemDtoResponse toItemResponse(Item item, List<Booking> bookings);
 
     @Mapping(target = "id", source = "item.id")
     @Mapping(target = "name", source = "item.name")
@@ -44,7 +44,7 @@ public interface ItemMapper {
     @Mapping(target = "lastBooking", ignore = true)
     @Mapping(target = "nextBooking", ignore = true)
     @Mapping(target = "comments", ignore = true)
-    ItemResponse toItemResponse(Item item);
+    ItemDtoResponse toItemResponse(Item item);
 
     @Mapping(target = "authorName", source = "author.name")
     CommentDto toCommentDto(Comment comment);
@@ -56,7 +56,7 @@ public interface ItemMapper {
     Comment toComment(CommentDto commentDto, Item item, User author);
 
     @Named("mapLastBooking")
-    default ItemResponse.BookingInfo mapLastBooking(List<Booking> bookings) {
+    default ItemDtoResponse.BookingInfo mapLastBooking(List<Booking> bookings) {
         if (bookings == null || bookings.isEmpty()) {
             return null;
         }
@@ -69,7 +69,7 @@ public interface ItemMapper {
     }
 
     @Named("mapNextBooking")
-    default ItemResponse.BookingInfo mapNextBooking(List<Booking> bookings) {
+    default ItemDtoResponse.BookingInfo mapNextBooking(List<Booking> bookings) {
         if (bookings == null || bookings.isEmpty()) {
             return null;
         }
@@ -81,10 +81,10 @@ public interface ItemMapper {
                 .orElse(null);
     }
 
-    private ItemResponse.BookingInfo convertToBookingInfo(Booking booking) {
+    private ItemDtoResponse.BookingInfo convertToBookingInfo(Booking booking) {
         if (booking == null || booking.getBooker() == null) {
             return null;
         }
-        return new ItemResponse.BookingInfo(booking.getId(), booking.getBooker().getId());
+        return new ItemDtoResponse.BookingInfo(booking.getId(), booking.getBooker().getId());
     }
 }

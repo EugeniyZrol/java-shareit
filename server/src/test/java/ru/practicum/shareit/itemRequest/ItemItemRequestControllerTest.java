@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +20,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.practicum.shareit.constants.ShareItConstants.X_SHARER_USER_ID;
 
-@WebMvcTest(RequestController.class)
-class RequestControllerTest {
+@WebMvcTest(ItemRequestController.class)
+class ItemItemRequestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -30,13 +30,13 @@ class RequestControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private RequestService requestService;
+    private ItemRequestService itemRequestService;
 
-    private RequestDto requestDto;
+    private ItemRequestDto itemRequestDto;
 
     @BeforeEach
     void setUp() {
-        RequestDto.ItemResponseDto itemDto = RequestDto.ItemResponseDto.builder()
+        ItemResponseDto itemDto = ItemResponseDto.builder()
                 .id(1L)
                 .name("Дрель")
                 .description("Мощная дрель")
@@ -45,7 +45,7 @@ class RequestControllerTest {
                 .requestId(1L)
                 .build();
 
-        requestDto = RequestDto.builder()
+        itemRequestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("Нужна дрель")
                 .created(LocalDateTime.now())
@@ -55,12 +55,12 @@ class RequestControllerTest {
 
     @Test
     void create_ShouldCreateRequest() throws Exception {
-        when(requestService.create(any(RequestDto.class), anyLong())).thenReturn(requestDto);
+        when(itemRequestService.create(any(ItemRequestDto.class), anyLong())).thenReturn(itemRequestDto);
 
         mockMvc.perform(post("/requests")
                         .header(X_SHARER_USER_ID, "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                        .content(objectMapper.writeValueAsString(itemRequestDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.description").value("Нужна дрель"))
@@ -71,13 +71,13 @@ class RequestControllerTest {
     void create_WithoutUserIdHeader_ShouldReturnBadRequest() throws Exception {
         mockMvc.perform(post("/requests")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                        .content(objectMapper.writeValueAsString(itemRequestDto)))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     void getOwnRequests_ShouldReturnUserRequests() throws Exception {
-        when(requestService.getOwnRequests(anyLong())).thenReturn(List.of(requestDto));
+        when(itemRequestService.getOwnRequests(anyLong())).thenReturn(List.of(itemRequestDto));
 
         mockMvc.perform(get("/requests")
                         .header(X_SHARER_USER_ID, "1"))
@@ -88,7 +88,7 @@ class RequestControllerTest {
 
     @Test
     void getAllRequests_WithPagination_ShouldReturnRequests() throws Exception {
-        when(requestService.getAllRequests(anyLong(), any(), any())).thenReturn(List.of(requestDto));
+        when(itemRequestService.getAllRequests(anyLong(), any(), any())).thenReturn(List.of(itemRequestDto));
 
         mockMvc.perform(get("/requests/all")
                         .header(X_SHARER_USER_ID, "1")
@@ -101,7 +101,7 @@ class RequestControllerTest {
 
     @Test
     void getAllRequests_WithoutPagination_ShouldReturnRequests() throws Exception {
-        when(requestService.getAllRequests(anyLong(), any(), any())).thenReturn(List.of(requestDto));
+        when(itemRequestService.getAllRequests(anyLong(), any(), any())).thenReturn(List.of(itemRequestDto));
 
         mockMvc.perform(get("/requests/all")
                         .header(X_SHARER_USER_ID, "1"))
@@ -111,7 +111,7 @@ class RequestControllerTest {
 
     @Test
     void getRequestById_ShouldReturnRequest() throws Exception {
-        when(requestService.getRequestById(anyLong(), anyLong())).thenReturn(requestDto);
+        when(itemRequestService.getRequestById(anyLong(), anyLong())).thenReturn(itemRequestDto);
 
         mockMvc.perform(get("/requests/1")
                         .header(X_SHARER_USER_ID, "1"))
@@ -122,7 +122,7 @@ class RequestControllerTest {
 
     @Test
     void getRequestById_WhenNotFound_ShouldReturnNotFound() throws Exception {
-        when(requestService.getRequestById(anyLong(), anyLong()))
+        when(itemRequestService.getRequestById(anyLong(), anyLong()))
                 .thenThrow(new NotFoundException("Запрос не найден"));
 
         mockMvc.perform(get("/requests/999")
@@ -132,7 +132,7 @@ class RequestControllerTest {
 
     @Test
     void getOwnRequests_WhenUserNotFound_ShouldReturnNotFound() throws Exception {
-        when(requestService.getOwnRequests(anyLong()))
+        when(itemRequestService.getOwnRequests(anyLong()))
                 .thenThrow(new NotFoundException("Пользователь не найден"));
 
         mockMvc.perform(get("/requests")
@@ -142,7 +142,7 @@ class RequestControllerTest {
 
     @Test
     void create_WithEmptyDescription_ShouldReturnBadRequest() throws Exception {
-        RequestDto emptyRequest = RequestDto.builder()
+        ItemRequestDto emptyRequest = ItemRequestDto.builder()
                 .description("")
                 .build();
 

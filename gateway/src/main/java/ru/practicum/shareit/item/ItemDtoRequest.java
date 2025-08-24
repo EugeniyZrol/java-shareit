@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemRequest {
+public class ItemDtoRequest {
     @NotBlank(message = "Название должно быть указано")
     private String name;
 

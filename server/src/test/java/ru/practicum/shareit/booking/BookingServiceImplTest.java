@@ -4,16 +4,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,25 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class BookingServiceImplTest {
 
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
     private BookingServiceImpl bookingService;
-
-    @Autowired
-    private BookingRepository bookingRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ItemRepository itemRepository;
-
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private ItemService itemService;
 
     private User owner;
     private User booker;

@@ -2,7 +2,7 @@ package ru.practicum.shareit.item;
 
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.item.comment.Comment;
-import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.itemRequest.ItemRequest;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ class ItemTest {
 
     @Test
     void item_ShouldWorkCorrectly() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
 
         Comment comment = new Comment();

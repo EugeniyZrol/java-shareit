@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +11,11 @@ import ru.practicum.shareit.client.BaseClient;
 import java.util.Map;
 
 @Service
-public class RequestClient extends BaseClient {
+public class ItemRequestClient extends BaseClient {
     private static final String API_PREFIX = "/requests";
 
     @Autowired
-    public RequestClient(@Value("${shareit-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public ItemRequestClient(@Value("${shareit-server.url:http://localhost:9090}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl + API_PREFIX))
@@ -23,8 +23,8 @@ public class RequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createRequest(RequestDto requestDto, Long userId) {
-        return post("", userId, requestDto);
+    public ResponseEntity<Object> createRequest(ItemRequestDto itemRequestDto, Long userId) {
+        return post("", userId, itemRequestDto);
     }
 
     public ResponseEntity<Object> getOwnRequests(Long userId) {

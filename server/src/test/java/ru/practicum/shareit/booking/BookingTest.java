@@ -207,13 +207,12 @@ class BookingTest {
         Booking booking = new Booking();
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime start = now.plusDays(1);
-        LocalDateTime end = now;
 
         booking.setStart(start);
-        booking.setEnd(end);
+        booking.setEnd(now);
 
         assertEquals(start, booking.getStart());
-        assertEquals(end, booking.getEnd());
+        assertEquals(now, booking.getEnd());
         assertTrue(booking.getEnd().isBefore(booking.getStart()));
     }
 

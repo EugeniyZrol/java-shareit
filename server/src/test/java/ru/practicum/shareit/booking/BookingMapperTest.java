@@ -3,7 +3,7 @@ package ru.practicum.shareit.booking;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemResponse;
+import ru.practicum.shareit.item.ItemDtoResponse;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserResponse;
 
@@ -70,9 +70,10 @@ class BookingMapperTest {
     }
 
     @Test
-    void toBooking_WithNullRequest_ShouldReturnNull() {
-
-        assertNull(bookingMapper.toBooking(null, 1L));
+    void toBooking_WithNullRequest_ShouldThrowNPE() {
+        assertThrows(NullPointerException.class, () -> {
+            bookingMapper.toBooking(null, 1L);
+        });
     }
 
     @Test
@@ -144,7 +145,7 @@ class BookingMapperTest {
         item.setDescription("Test Description");
         item.setAvailable(true);
 
-        ItemResponse dto = bookingMapper.mapItemToDto(item);
+        ItemDtoResponse dto = bookingMapper.mapItemToDto(item);
 
         assertNotNull(dto);
         assertEquals(1L, dto.getId());
@@ -163,7 +164,7 @@ class BookingMapperTest {
         Item item = new Item();
         item.setId(1L);
 
-        ItemResponse dto = bookingMapper.mapItemToDto(item);
+        ItemDtoResponse dto = bookingMapper.mapItemToDto(item);
 
         assertNotNull(dto);
         assertEquals(1L, dto.getId());

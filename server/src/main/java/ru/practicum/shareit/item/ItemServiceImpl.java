@@ -12,8 +12,8 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentRepository;
-import ru.practicum.shareit.request.Request;
-import ru.practicum.shareit.request.RequestRepository;
+import ru.practicum.shareit.itemRequest.ItemRequest;
+import ru.practicum.shareit.itemRequest.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -32,23 +32,23 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final RequestRepository itemRequestRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
 
     @Override
     @Transactional
-    public ItemResponse addItem(ItemRequest itemRequest, Long ownerId) {
+    public ItemDtoResponse addItem(ItemDtoRequest itemDtoRequest, Long ownerId) {
         userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID " + ownerId + " не найден"));
 
-        Item item = itemMapper.toItem(itemRequest);
+        Item item = itemMapper.toItem(itemDtoRequest);
         item.setOwnerId(ownerId);
 
-        if (itemRequest.getRequestId() != null) {
-            Request request = itemRequestRepository.findById(itemRequest.getRequestId())
-                    .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemRequest.getRequestId() + " не найден"));
+        if (itemDtoRequest.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDtoRequest.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemDtoRequest.getRequestId() + " не найден"));
             item.setRequest(request);
         }
 
@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemResponse updateItem(Long itemId, ItemRequest itemRequest, Long ownerId) {
+    public ItemDtoResponse updateItem(Long itemId, ItemDtoRequest itemDtoRequest, Long ownerId) {
         Item existingItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
 
@@ -66,21 +66,21 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("Вещь с ID " + itemId + " не принадлежит пользователю " + ownerId);
         }
 
-        if (itemRequest.getName() != null) {
-            existingItem.setName(itemRequest.getName());
+        if (itemDtoRequest.getName() != null) {
+            existingItem.setName(itemDtoRequest.getName());
         }
-        if (itemRequest.getDescription() != null) {
-            existingItem.setDescription(itemRequest.getDescription());
+        if (itemDtoRequest.getDescription() != null) {
+            existingItem.setDescription(itemDtoRequest.getDescription());
         }
-        if (itemRequest.getAvailable() != null) {
-            existingItem.setAvailable(itemRequest.getAvailable());
+        if (itemDtoRequest.getAvailable() != null) {
+            existingItem.setAvailable(itemDtoRequest.getAvailable());
         }
 
-        if (itemRequest.getRequestId() != null) {
-            Request request = itemRequestRepository.findById(itemRequest.getRequestId())
-                    .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemRequest.getRequestId() + " не найден"));
+        if (itemDtoRequest.getRequestId() != null) {
+            ItemRequest request = itemRequestRepository.findById(itemDtoRequest.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("Запрос с ID " + itemDtoRequest.getRequestId() + " не найден"));
             existingItem.setRequest(request);
-        } else if (itemRequest.getRequestId() == null && existingItem.getRequest() != null) {
+        } else if (itemDtoRequest.getRequestId() == null && existingItem.getRequest() != null) {
             existingItem.setRequest(null);
         }
 
@@ -90,7 +90,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public ItemResponse getItemById(Long itemId, Long userId) {
+    public ItemDtoResponse getItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с ID " + itemId + " не найдена"));
 
@@ -98,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
                 .map(itemMapper::toCommentDto)
                 .collect(Collectors.toList());
 
-        ItemResponse response;
+        ItemDtoResponse response;
         if (item.getOwnerId().equals(userId)) {
             response = itemMapper.toItemResponse(item, getBookingsForItem(itemId));
         } else {
@@ -110,7 +110,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponse> getAllItemsByOwner(Long ownerId) {
+    public List<ItemDtoResponse> getAllItemsByOwner(Long ownerId) {
         List<Item> items = itemRepository.findByOwnerId(ownerId);
         if (items.isEmpty()) {
             return Collections.emptyList();
@@ -130,7 +130,7 @@ public class ItemServiceImpl implements ItemService {
         return items.stream()
                 .map(item -> {
                     List<Booking> itemBookings = bookingsByItem.getOrDefault(item.getId(), Collections.emptyList());
-                    ItemResponse response = itemMapper.toItemResponse(item, itemBookings);
+                    ItemDtoResponse response = itemMapper.toItemResponse(item, itemBookings);
                     response.setComments(commentsByItem.getOrDefault(item.getId(), Collections.emptyList()));
                     return response;
                 })
@@ -138,7 +138,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemResponse> searchAvailableItems(String text) {
+    public List<ItemDtoResponse> searchAvailableItems(String text) {
         if (text == null || text.isBlank()) {
             return Collections.emptyList();
         }

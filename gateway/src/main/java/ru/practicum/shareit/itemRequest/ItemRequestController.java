@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,22 +14,22 @@ import static ru.practicum.shareit.constants.ShareItConstants.X_SHARER_USER_ID;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
-public class RequestController {
-    private final RequestClient requestClient;
+public class ItemRequestController {
+    private final ItemRequestClient itemRequestClient;
 
     @PostMapping
     public ResponseEntity<Object> create(
             @RequestHeader(X_SHARER_USER_ID) Long userId,
-            @Valid @RequestBody RequestDto requestDto) {
+            @Valid @RequestBody ItemRequestDto itemRequestDto) {
         log.info("Create request by user ID: {}", userId);
-        return requestClient.createRequest(requestDto, userId);
+        return itemRequestClient.createRequest(itemRequestDto, userId);
     }
 
     @GetMapping
     public ResponseEntity<Object> getOwnRequests(
             @RequestHeader(X_SHARER_USER_ID) Long userId) {
         log.info("Get own requests for user ID: {}", userId);
-        return requestClient.getOwnRequests(userId);
+        return itemRequestClient.getOwnRequests(userId);
     }
 
     @GetMapping("/all")
@@ -38,7 +38,7 @@ public class RequestController {
             @RequestParam(value = "from", required = false) @PositiveOrZero Integer from,
             @RequestParam(value = "size", required = false) @Positive Integer size) {
         log.info("Get all requests for user ID: {}, from: {}, size: {}", userId, from, size);
-        return requestClient.getAllRequests(userId, from, size);
+        return itemRequestClient.getAllRequests(userId, from, size);
     }
 
     @GetMapping("/{requestId}")
@@ -46,6 +46,6 @@ public class RequestController {
             @RequestHeader(X_SHARER_USER_ID) Long userId,
             @PathVariable Long requestId) {
         log.info("Get request by ID: {}, user ID: {}", requestId, userId);
-        return requestClient.getRequestById(requestId, userId);
+        return itemRequestClient.getRequestById(requestId, userId);
     }
 }

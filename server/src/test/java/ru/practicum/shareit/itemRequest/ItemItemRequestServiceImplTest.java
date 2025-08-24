@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,24 +17,24 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@Import({RequestServiceImpl.class, RequestMapperImpl.class})
-class RequestServiceImplTest {
+@Import({ItemRequestServiceImpl.class, ItemRequestMapperImpl.class})
+class ItemItemRequestServiceImplTest {
 
     @Autowired
     private TestEntityManager entityManager;
 
     @Autowired
-    private RequestServiceImpl requestService;
+    private ItemRequestServiceImpl requestService;
 
     @Autowired
-    private RequestRepository requestRepository;
+    private ItemRequestRepository itemRequestRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     private User user1;
     private User user2;
-    private RequestDto requestDto;
+    private ItemRequestDto requestDto;
 
     @BeforeEach
     void setUp() {
@@ -48,14 +48,14 @@ class RequestServiceImplTest {
         user2.setEmail("user2@email.com");
         user2 = userRepository.save(user2);
 
-        requestDto = new RequestDto();
+        requestDto = new ItemRequestDto();
         requestDto.setDescription("Нужна дрель");
     }
 
     @Test
     void create_WhenValidRequest_ShouldCreateRequest() {
 
-        RequestDto result = requestService.create(requestDto, user1.getId());
+        ItemRequestDto result = requestService.create(requestDto, user1.getId());
 
         assertNotNull(result);
         assertNotNull(result.getId());
@@ -77,7 +77,7 @@ class RequestServiceImplTest {
 
         requestService.create(requestDto, user1.getId());
 
-        List<RequestDto> result = requestService.getOwnRequests(user1.getId());
+        List<ItemRequestDto> result = requestService.getOwnRequests(user1.getId());
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -96,7 +96,7 @@ class RequestServiceImplTest {
     @Test
     void getOwnRequests_WhenNoRequests_ShouldReturnEmptyList() {
 
-        List<RequestDto> result = requestService.getOwnRequests(user1.getId());
+        List<ItemRequestDto> result = requestService.getOwnRequests(user1.getId());
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -107,11 +107,11 @@ class RequestServiceImplTest {
 
         requestService.create(requestDto, user1.getId());
 
-        RequestDto requestDto2 = new RequestDto();
+        ItemRequestDto requestDto2 = new ItemRequestDto();
         requestDto2.setDescription("Нужен молоток");
         requestService.create(requestDto2, user2.getId());
 
-        List<RequestDto> result = requestService.getAllRequests(user1.getId(), 0, 10);
+        List<ItemRequestDto> result = requestService.getAllRequests(user1.getId(), 0, 10);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -125,11 +125,11 @@ class RequestServiceImplTest {
 
         requestService.create(requestDto, user1.getId());
 
-        RequestDto requestDto2 = new RequestDto();
+        ItemRequestDto requestDto2 = new ItemRequestDto();
         requestDto2.setDescription("Нужен молоток");
         requestService.create(requestDto2, user2.getId());
 
-        List<RequestDto> result = requestService.getAllRequests(user1.getId(), null, null);
+        List<ItemRequestDto> result = requestService.getAllRequests(user1.getId(), null, null);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -148,9 +148,9 @@ class RequestServiceImplTest {
     @Test
     void getRequestById_WhenRequestExists_ShouldReturnRequest() {
 
-        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        ItemRequestDto createdRequest = requestService.create(requestDto, user1.getId());
 
-        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+        ItemRequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
 
         assertNotNull(result);
         assertEquals(createdRequest.getId(), result.getId());
@@ -169,7 +169,7 @@ class RequestServiceImplTest {
     @Test
     void getRequestById_WhenUserNotFound_ShouldThrowException() {
 
-        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        ItemRequestDto createdRequest = requestService.create(requestDto, user1.getId());
 
         assertThrows(NotFoundException.class, () ->
                 requestService.getRequestById(createdRequest.getId(), 999L));
@@ -180,7 +180,7 @@ class RequestServiceImplTest {
 
         LocalDateTime beforeCreate = LocalDateTime.now().minusSeconds(1);
 
-        RequestDto result = requestService.create(requestDto, user1.getId());
+        ItemRequestDto result = requestService.create(requestDto, user1.getId());
 
         assertNotNull(result.getCreated());
         assertTrue(result.getCreated().isAfter(beforeCreate));
@@ -190,7 +190,7 @@ class RequestServiceImplTest {
     @Test
     void getRequestById_WithItems_ShouldReturnRequestWithItems() {
 
-        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        ItemRequestDto createdRequest = requestService.create(requestDto, user1.getId());
 
         Item item = new Item();
         item.setName("Дрель");
@@ -198,28 +198,30 @@ class RequestServiceImplTest {
         item.setAvailable(true);
         item.setOwnerId(user2.getId());
 
-        Request request = requestRepository.findById(createdRequest.getId()).get();
+        ItemRequest request = itemRequestRepository.findById(createdRequest.getId())
+                .orElseThrow(() -> new NotFoundException("Запрос не найден"));
         item.setRequest(request);
 
         entityManager.persist(item);
         entityManager.flush();
         entityManager.clear();
 
-        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+        ItemRequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
 
         assertNotNull(result.getItems());
         assertNotNull(result.getItems());
 
-        Request refreshedRequest = requestRepository.findById(createdRequest.getId()).get();
+        ItemRequest refreshedRequest = itemRequestRepository.findById(createdRequest.getId())
+                .orElseThrow(() -> new NotFoundException("Запрос не найден"));
         assertNotNull(refreshedRequest.getItems());
     }
 
     @Test
     void getRequestById_WithoutItems_ShouldReturnEmptyItemsList() {
 
-        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        ItemRequestDto createdRequest = requestService.create(requestDto, user1.getId());
 
-        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+        ItemRequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
 
         assertNotNull(result.getItems());
         assertTrue(result.getItems().isEmpty());
@@ -230,7 +232,7 @@ class RequestServiceImplTest {
 
         requestService.create(requestDto, user1.getId());
 
-        List<RequestDto> result = requestService.getAllRequests(user1.getId(), 0, 10);
+        List<ItemRequestDto> result = requestService.getAllRequests(user1.getId(), 0, 10);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -238,11 +240,11 @@ class RequestServiceImplTest {
 
     @Test
     void getAllRequests_WithLargeFrom_ShouldReturnEmptyList() {
-        RequestDto requestDto2 = new RequestDto();
+        ItemRequestDto requestDto2 = new ItemRequestDto();
         requestDto2.setDescription("Нужен молоток");
         requestService.create(requestDto2, user2.getId());
 
-        List<RequestDto> result = requestService.getAllRequests(user1.getId(), 100, 10);
+        List<ItemRequestDto> result = requestService.getAllRequests(user1.getId(), 100, 10);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -250,8 +252,9 @@ class RequestServiceImplTest {
 
     @Test
     void getRequestById_WithMultipleItems_ShouldReturnAllItems() {
-        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
-        Request request = requestRepository.findById(createdRequest.getId()).get();
+        ItemRequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        ItemRequest request = itemRequestRepository.findById(createdRequest.getId())
+                .orElseThrow(() -> new NotFoundException("Запрос не найден"));
 
         Item item1 = new Item();
         item1.setName("Дрель 1");
@@ -272,7 +275,7 @@ class RequestServiceImplTest {
         entityManager.flush();
         entityManager.clear();
 
-        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+        ItemRequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
 
         assertNotNull(result.getItems());
         assertEquals(2, result.getItems().size());
@@ -280,8 +283,9 @@ class RequestServiceImplTest {
 
     @Test
     void getRequestById_WithUnavailableItem_ShouldStillReturnItem() {
-        RequestDto createdRequest = requestService.create(requestDto, user1.getId());
-        Request request = requestRepository.findById(createdRequest.getId()).get();
+        ItemRequestDto createdRequest = requestService.create(requestDto, user1.getId());
+        ItemRequest request = itemRequestRepository.findById(createdRequest.getId())
+                .orElseThrow(() -> new NotFoundException("Запрос не найден"));
 
         Item item = new Item();
         item.setName("Дрель");
@@ -294,7 +298,7 @@ class RequestServiceImplTest {
         entityManager.flush();
         entityManager.clear();
 
-        RequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
+        ItemRequestDto result = requestService.getRequestById(createdRequest.getId(), user2.getId());
 
         assertNotNull(result.getItems());
         assertEquals(1, result.getItems().size());

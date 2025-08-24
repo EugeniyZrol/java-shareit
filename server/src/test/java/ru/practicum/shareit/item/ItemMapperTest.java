@@ -6,7 +6,7 @@ import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
-import ru.practicum.shareit.request.Request;
+import ru.practicum.shareit.itemRequest.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ class ItemMapperTest {
 
     @Test
     void toItem_ShouldMapCorrectly() {
-        ItemRequest itemRequest = new ItemRequest("Test Item", "Test Description", true, 1L);
+        ItemDtoRequest itemRequest = new ItemDtoRequest("Test Item", "Test Description", true, 1L);
 
         Item item = itemMapper.toItem(itemRequest);
 
@@ -39,7 +39,7 @@ class ItemMapperTest {
         Item item = createTestItem();
         List<Booking> bookings = createTestBookings();
 
-        ItemResponse response = itemMapper.toItemResponse(item, bookings);
+        ItemDtoResponse response = itemMapper.toItemResponse(item, bookings);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -62,7 +62,7 @@ class ItemMapperTest {
     void toItemResponse_WithoutBookings_ShouldMapCorrectly() {
         Item item = createTestItem();
 
-        ItemResponse response = itemMapper.toItemResponse(item, List.of());
+        ItemDtoResponse response = itemMapper.toItemResponse(item, List.of());
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -79,7 +79,7 @@ class ItemMapperTest {
     void toItemResponse_Simple_ShouldMapCorrectly() {
         Item item = createTestItem();
 
-        ItemResponse response = itemMapper.toItemResponse(item);
+        ItemDtoResponse response = itemMapper.toItemResponse(item);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -140,7 +140,7 @@ class ItemMapperTest {
     void mapLastBooking_ShouldReturnCorrectBooking() {
         List<Booking> bookings = createTestBookings();
 
-        ItemResponse.BookingInfo lastBooking = itemMapper.mapLastBooking(bookings);
+        ItemDtoResponse.BookingInfo lastBooking = itemMapper.mapLastBooking(bookings);
 
         assertNotNull(lastBooking);
         assertEquals(2L, lastBooking.getId()); // Самое позднее прошедшее бронирование
@@ -151,7 +151,7 @@ class ItemMapperTest {
     void mapNextBooking_ShouldReturnCorrectBooking() {
         List<Booking> bookings = createTestBookings();
 
-        ItemResponse.BookingInfo nextBooking = itemMapper.mapNextBooking(bookings);
+        ItemDtoResponse.BookingInfo nextBooking = itemMapper.mapNextBooking(bookings);
 
         assertNotNull(nextBooking);
         assertEquals(3L, nextBooking.getId()); // Самое раннее будущее бронирование
@@ -178,7 +178,7 @@ class ItemMapperTest {
         item.setAvailable(true);
         item.setOwnerId(1L);
 
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
         item.setRequest(request);
 

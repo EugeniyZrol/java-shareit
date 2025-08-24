@@ -17,7 +17,7 @@ class ItemRequestTest {
     @Test
     void shouldSerializeItemRequest() throws JsonProcessingException {
 
-        ItemRequest request = new ItemRequest("Test Item", "Test Description", true, 1L);
+        ItemDtoRequest request = new ItemDtoRequest("Test Item", "Test Description", true, 1L);
 
         String json = objectMapper.writeValueAsString(request);
 
@@ -32,7 +32,7 @@ class ItemRequestTest {
 
         String json = "{\"name\":\"Test Item\",\"description\":\"Test Description\",\"available\":true,\"requestId\":1}";
 
-        ItemRequest request = objectMapper.readValue(json, ItemRequest.class);
+        ItemDtoRequest request = objectMapper.readValue(json, ItemDtoRequest.class);
 
         assertThat(request.getName()).isEqualTo("Test Item");
         assertThat(request.getDescription()).isEqualTo("Test Description");
@@ -45,7 +45,7 @@ class ItemRequestTest {
 
         String json = "{\"name\":\"Test Item\",\"available\":true}";
 
-        ItemRequest request = objectMapper.readValue(json, ItemRequest.class);
+        ItemDtoRequest request = objectMapper.readValue(json, ItemDtoRequest.class);
 
         assertThat(request.getName()).isEqualTo("Test Item");
         assertThat(request.getAvailable()).isTrue();

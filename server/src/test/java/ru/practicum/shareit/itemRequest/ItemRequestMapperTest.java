@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -10,20 +10,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RequestMapperTest {
+class ItemRequestMapperTest {
 
-    private final RequestMapper requestMapper = Mappers.getMapper(RequestMapper.class);
+    private final ItemRequestMapper requestMapper = Mappers.getMapper(ItemRequestMapper.class);
 
     @Test
     void toEntity_ShouldMapCorrectly() {
-        RequestDto dto = new RequestDto();
+        ItemRequestDto dto = new ItemRequestDto();
         dto.setDescription("Нужна дрель");
 
         User requestor = new User();
         requestor.setId(1L);
         requestor.setName("Test User");
 
-        Request entity = requestMapper.toEntity(dto, requestor);
+        ItemRequest entity = requestMapper.toEntity(dto, requestor);
 
         assertNotNull(entity);
         assertNull(entity.getId());
@@ -39,7 +39,7 @@ class RequestMapperTest {
         requestor.setId(1L);
         requestor.setName("Test User");
 
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
         request.setDescription("Нужна дрель");
         request.setRequestor(requestor);
@@ -55,7 +55,7 @@ class RequestMapperTest {
 
         request.setItems(List.of(item));
 
-        RequestDto dto = requestMapper.toDto(request);
+        ItemRequestDto dto = requestMapper.toDto(request);
 
         assertNotNull(dto);
         assertEquals(1L, dto.getId());
@@ -63,17 +63,17 @@ class RequestMapperTest {
         assertNotNull(dto.getCreated());
         assertNotNull(dto.getItems());
         assertEquals(1, dto.getItems().size());
-        assertEquals("Дрель", dto.getItems().get(0).getName());
+        assertEquals("Дрель", dto.getItems().getFirst().getName());
     }
 
     @Test
     void toDto_WithNullItems_ShouldReturnEmptyList() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
         request.setDescription("Нужна дрель");
         request.setItems(null);
 
-        RequestDto dto = requestMapper.toDto(request);
+        ItemRequestDto dto = requestMapper.toDto(request);
 
         assertNotNull(dto);
         assertEquals(1L, dto.getId());
@@ -83,7 +83,7 @@ class RequestMapperTest {
 
     @Test
     void itemToResponseDto_ShouldMapCorrectly() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
 
         Item item = new Item();
@@ -94,7 +94,7 @@ class RequestMapperTest {
         item.setOwnerId(2L);
         item.setRequest(request);
 
-        RequestDto.ItemResponseDto itemDto = requestMapper.itemToResponseDto(item);
+        ItemResponseDto itemDto = requestMapper.itemToResponseDto(item);
 
         assertNotNull(itemDto);
         assertEquals(1L, itemDto.getId());
@@ -107,7 +107,7 @@ class RequestMapperTest {
 
     @Test
     void itemToResponseDto_WithNullItem_ShouldReturnNull() {
-        RequestDto.ItemResponseDto itemDto = requestMapper.itemToResponseDto(null);
+        ItemResponseDto itemDto = requestMapper.itemToResponseDto(null);
 
         assertNull(itemDto);
     }
@@ -118,7 +118,7 @@ class RequestMapperTest {
         item.setId(1L);
         item.setRequest(null);
 
-        RequestDto.ItemResponseDto itemDto = requestMapper.itemToResponseDto(item);
+        ItemResponseDto itemDto = requestMapper.itemToResponseDto(item);
 
         assertNotNull(itemDto);
         assertNull(itemDto.getRequestId());
@@ -126,14 +126,14 @@ class RequestMapperTest {
 
     @Test
     void toEntity_ShouldIgnoreIdAndItems() {
-        RequestDto dto = new RequestDto();
+        ItemRequestDto dto = new ItemRequestDto();
         dto.setId(999L);
         dto.setDescription("Нужна дрель");
 
         User requestor = new User();
         requestor.setId(1L);
 
-        Request entity = requestMapper.toEntity(dto, requestor);
+        ItemRequest entity = requestMapper.toEntity(dto, requestor);
 
         assertNotNull(entity);
         assertNull(entity.getId());
@@ -143,12 +143,12 @@ class RequestMapperTest {
 
     @Test
     void toDto_WithEmptyItemsList_ShouldReturnEmptyList() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
         request.setDescription("Нужна дрель");
         request.setItems(List.of());
 
-        RequestDto dto = requestMapper.toDto(request);
+        ItemRequestDto dto = requestMapper.toDto(request);
 
         assertNotNull(dto);
         assertNotNull(dto.getItems());

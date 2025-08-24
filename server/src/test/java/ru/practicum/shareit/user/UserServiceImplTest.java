@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import ru.practicum.shareit.exception.DuplicatedDataException;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -16,9 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @Import({UserServiceImpl.class, UserMapperImpl.class})
 class UserServiceImplTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
 
     @Autowired
     private UserServiceImpl userService;

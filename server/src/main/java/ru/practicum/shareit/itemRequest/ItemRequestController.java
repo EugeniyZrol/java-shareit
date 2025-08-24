@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -8,25 +8,25 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
-public class RequestController {
-    private final RequestService itemRequestService;
+public class ItemRequestController {
+    private final ItemRequestService itemRequestService;
     private static final String USER_ID_HEADER = "X-Sharer-User-Id";
 
     @PostMapping
-    public ResponseEntity<RequestDto> create(
+    public ResponseEntity<ItemRequestDto> create(
             @RequestHeader(USER_ID_HEADER) Long userId,
-            @RequestBody RequestDto itemRequestDto) { // @Validated удален
+            @RequestBody ItemRequestDto itemRequestDto) { // @Validated удален
         return ResponseEntity.ok(itemRequestService.create(itemRequestDto, userId));
     }
 
     @GetMapping
-    public ResponseEntity<List<RequestDto>> getOwnRequests(
+    public ResponseEntity<List<ItemRequestDto>> getOwnRequests(
             @RequestHeader(USER_ID_HEADER) Long userId) {
         return ResponseEntity.ok(itemRequestService.getOwnRequests(userId));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<RequestDto>> getAllRequests(
+    public ResponseEntity<List<ItemRequestDto>> getAllRequests(
             @RequestHeader(USER_ID_HEADER) Long userId,
             @RequestParam(value = "from", required = false) Integer from,
             @RequestParam(value = "size", required = false) Integer size) {
@@ -34,7 +34,7 @@ public class RequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ResponseEntity<RequestDto> getRequestById(
+    public ResponseEntity<ItemRequestDto> getRequestById(
             @RequestHeader(USER_ID_HEADER) Long userId,
             @PathVariable Long requestId) {
         return ResponseEntity.ok(itemRequestService.getRequestById(requestId, userId));

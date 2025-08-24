@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestDto {
+public class ItemRequestDto {
     private Long id;
 
     @NotBlank(message = "Описание запроса не может быть пустым")
@@ -22,17 +22,4 @@ public class RequestDto {
     private LocalDateTime created;
 
     private List<ItemResponseDto> items;
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ItemResponseDto {
-        private Long id;
-        private String name;
-        private Long ownerId;
-        private String description;
-        private Boolean available;
-        private Long requestId;
-    }
 }

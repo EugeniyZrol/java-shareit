@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "requests")
-public class Request {
+public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,8 +35,8 @@ public class Request {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Request)) return false;
-        return id != null && id.equals(((Request) o).getId());
+        if (!(o instanceof ItemRequest)) return false;
+        return id != null && id.equals(((ItemRequest) o).getId());
     }
 
     @Override

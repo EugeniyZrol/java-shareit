@@ -31,18 +31,18 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> addItem(@Valid @RequestBody ItemRequest itemRequest,
+    public ResponseEntity<Object> addItem(@Valid @RequestBody ItemDtoRequest itemDtoRequest,
                                           @RequestHeader(X_SHARER_USER_ID) Long ownerId) {
-        log.info("Add item: {}, owner ID: {}", itemRequest, ownerId);
-        return itemClient.addItem(itemRequest, ownerId);
+        log.info("Add item: {}, owner ID: {}", itemDtoRequest, ownerId);
+        return itemClient.addItem(itemDtoRequest, ownerId);
     }
 
     @PatchMapping("/{itemId}")
     public ResponseEntity<Object> updateItem(@PathVariable Long itemId,
-                                             @Valid @RequestBody ItemRequest itemRequest,
+                                             @Valid @RequestBody ItemDtoRequest itemDtoRequest,
                                              @RequestHeader(X_SHARER_USER_ID) Long ownerId) {
-        log.info("Update item ID {}: {}, owner ID: {}", itemId, itemRequest, ownerId);
-        return itemClient.updateItem(itemId, itemRequest, ownerId);
+        log.info("Update item ID {}: {}, owner ID: {}", itemId, itemDtoRequest, ownerId);
+        return itemClient.updateItem(itemId, itemDtoRequest, ownerId);
     }
 
     @GetMapping("/search")

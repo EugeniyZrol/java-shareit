@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
-class RequestDtoTest {
+class ItemRequestDtoTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -20,7 +20,7 @@ class RequestDtoTest {
     @Test
     void shouldSerializeRequestDto() throws JsonProcessingException {
 
-        RequestDto.ItemResponseDto itemDto = RequestDto.ItemResponseDto.builder()
+        ItemResponseDto itemDto = ItemResponseDto.builder()
                 .id(1L)
                 .name("Дрель")
                 .description("Мощная дрель")
@@ -29,7 +29,7 @@ class RequestDtoTest {
                 .requestId(1L)
                 .build();
 
-        RequestDto requestDto = RequestDto.builder()
+        ItemRequestDto requestDto = ItemRequestDto.builder()
                 .id(1L)
                 .description("Нужна дрель")
                 .created(LocalDateTime.of(2024, 1, 1, 12, 0))
@@ -49,13 +49,13 @@ class RequestDtoTest {
 
         String json = "{\"id\":1,\"description\":\"Нужна дрель\",\"created\":\"2024-01-01T12:00:00\",\"items\":[{\"id\":1,\"name\":\"Дрель\",\"description\":\"Мощная дрель\",\"available\":true,\"ownerId\":2,\"requestId\":1}]}";
 
-        RequestDto requestDto = objectMapper.readValue(json, RequestDto.class);
+        ItemRequestDto requestDto = objectMapper.readValue(json, ItemRequestDto.class);
 
         assertThat(requestDto.getId()).isEqualTo(1L);
         assertThat(requestDto.getDescription()).isEqualTo("Нужна дрель");
         assertThat(requestDto.getCreated()).isEqualTo(LocalDateTime.of(2024, 1, 1, 12, 0));
         assertThat(requestDto.getItems()).hasSize(1);
-        assertThat(requestDto.getItems().get(0).getName()).isEqualTo("Дрель");
+        assertThat(requestDto.getItems().getFirst().getName()).isEqualTo("Дрель");
     }
 
     @Test
@@ -63,7 +63,7 @@ class RequestDtoTest {
 
         String json = "{\"id\":1,\"description\":\"Нужна дрель\",\"created\":\"2024-01-01T12:00:00\"}";
 
-        RequestDto requestDto = objectMapper.readValue(json, RequestDto.class);
+        ItemRequestDto requestDto = objectMapper.readValue(json, ItemRequestDto.class);
 
         assertThat(requestDto.getId()).isEqualTo(1L);
         assertThat(requestDto.getDescription()).isEqualTo("Нужна дрель");
@@ -73,7 +73,7 @@ class RequestDtoTest {
     @Test
     void shouldHandleItemResponseDto() throws JsonProcessingException {
 
-        RequestDto.ItemResponseDto itemDto = RequestDto.ItemResponseDto.builder()
+        ItemResponseDto itemDto = ItemResponseDto.builder()
                 .id(1L)
                 .name("Дрель")
                 .available(true)
@@ -91,7 +91,7 @@ class RequestDtoTest {
 
         String json = "{\"id\":1,\"name\":\"Дрель\",\"description\":\"Мощная дрель\",\"available\":true,\"ownerId\":2,\"requestId\":1}";
 
-        RequestDto.ItemResponseDto itemDto = objectMapper.readValue(json, RequestDto.ItemResponseDto.class);
+        ItemResponseDto itemDto = objectMapper.readValue(json, ItemResponseDto.class);
 
         assertThat(itemDto.getId()).isEqualTo(1L);
         assertThat(itemDto.getName()).isEqualTo("Дрель");

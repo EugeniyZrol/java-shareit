@@ -34,18 +34,18 @@ class ItemControllerTest {
     @MockBean
     private ItemService itemService;
 
-    private ItemResponse itemResponse;
-    private ItemRequest itemRequest;
+    private ItemDtoResponse itemResponse;
+    private ItemDtoRequest itemDtoRequest;
     private CommentDto commentDto;
 
     @BeforeEach
     void setUp() {
-        itemResponse = new ItemResponse(
+        itemResponse = new ItemDtoResponse(
                 1L, "Test Item", "Test Description", true, 1L, null,
                 null, null, Collections.emptyList()
         );
 
-        itemRequest = new ItemRequest("Test Item", "Test Description", true, null);
+        itemDtoRequest = new ItemDtoRequest("Test Item", "Test Description", true, null);
 
         commentDto = new CommentDto();
         commentDto.setId(1L);
@@ -79,12 +79,12 @@ class ItemControllerTest {
 
     @Test
     void addItem_ShouldCreateItem() throws Exception {
-        when(itemService.addItem(any(ItemRequest.class), anyLong())).thenReturn(itemResponse);
+        when(itemService.addItem(any(ItemDtoRequest.class), anyLong())).thenReturn(itemResponse);
 
         mockMvc.perform(post("/items")
                         .header(X_SHARER_USER_ID, "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemRequest)))
+                        .content(objectMapper.writeValueAsString(itemDtoRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Test Item"));
@@ -92,12 +92,12 @@ class ItemControllerTest {
 
     @Test
     void updateItem_ShouldUpdateItem() throws Exception {
-        when(itemService.updateItem(anyLong(), any(ItemRequest.class), anyLong())).thenReturn(itemResponse);
+        when(itemService.updateItem(anyLong(), any(ItemDtoRequest.class), anyLong())).thenReturn(itemResponse);
 
         mockMvc.perform(patch("/items/1")
                         .header(X_SHARER_USER_ID, "1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(itemRequest)))
+                        .content(objectMapper.writeValueAsString(itemDtoRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Test Item"));

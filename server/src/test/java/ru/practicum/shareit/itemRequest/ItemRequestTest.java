@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request;
+package ru.practicum.shareit.itemRequest;
 
 import org.junit.jupiter.api.Test;
 import ru.practicum.shareit.item.Item;
@@ -9,7 +9,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class RequestTest {
+class ItemRequestTest {
 
     @Test
     void request_ShouldWorkCorrectly() {
@@ -21,7 +21,7 @@ class RequestTest {
 
         LocalDateTime created = LocalDateTime.now();
 
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
         request.setDescription("Need a drill");
         request.setRequestor(requestor);
@@ -38,7 +38,7 @@ class RequestTest {
 
     @Test
     void request_ShouldHaveDefaultCreatedTime() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
 
         request.setDescription("Test");
 
@@ -47,10 +47,10 @@ class RequestTest {
 
     @Test
     void equals_ShouldReturnTrueForSameId() {
-        Request request1 = new Request();
+        ItemRequest request1 = new ItemRequest();
         request1.setId(1L);
 
-        Request request2 = new Request();
+        ItemRequest request2 = new ItemRequest();
         request2.setId(1L);
 
         assertEquals(request1, request2);
@@ -59,10 +59,10 @@ class RequestTest {
 
     @Test
     void equals_ShouldReturnFalseForDifferentId() {
-        Request request1 = new Request();
+        ItemRequest request1 = new ItemRequest();
         request1.setId(1L);
 
-        Request request2 = new Request();
+        ItemRequest request2 = new ItemRequest();
         request2.setId(2L);
 
         assertNotEquals(request1, request2);
@@ -70,7 +70,7 @@ class RequestTest {
 
     @Test
     void equals_ShouldReturnFalseForNull() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
 
         assertNotEquals(null, request);
@@ -78,7 +78,7 @@ class RequestTest {
 
     @Test
     void equals_ShouldReturnFalseForDifferentClass() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
 
         assertNotEquals("not a request", request);
@@ -86,7 +86,7 @@ class RequestTest {
 
     @Test
     void toString_ShouldNotContainLazyFields() {
-        Request request = new Request();
+        ItemRequest request = new ItemRequest();
         request.setId(1L);
         request.setDescription("Test");
 

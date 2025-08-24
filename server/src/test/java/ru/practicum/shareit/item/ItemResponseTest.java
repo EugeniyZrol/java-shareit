@@ -12,8 +12,8 @@ class ItemResponseTest {
 
     @Test
     void itemResponse_ShouldWorkCorrectly() {
-        ItemResponse.BookingInfo lastBooking = new ItemResponse.BookingInfo(1L, 2L);
-        ItemResponse.BookingInfo nextBooking = new ItemResponse.BookingInfo(3L, 4L);
+        ItemDtoResponse.BookingInfo lastBooking = new ItemDtoResponse.BookingInfo(1L, 2L);
+        ItemDtoResponse.BookingInfo nextBooking = new ItemDtoResponse.BookingInfo(3L, 4L);
 
         CommentDto comment1 = new CommentDto();
         comment1.setId(1L);
@@ -27,7 +27,7 @@ class ItemResponseTest {
         comment2.setAuthorName("User2");
         comment2.setCreated(LocalDateTime.now().minusDays(1));
 
-        ItemResponse response = new ItemResponse(
+        ItemDtoResponse response = new ItemDtoResponse(
                 1L, "Test Item", "Test Description", true, 5L, 10L,
                 lastBooking, nextBooking, List.of(comment1, comment2)
         );
@@ -55,7 +55,7 @@ class ItemResponseTest {
 
     @Test
     void itemResponse_NoArgsConstructor_ShouldWork() {
-        ItemResponse response = new ItemResponse();
+        ItemDtoResponse response = new ItemDtoResponse();
 
         assertNull(response.getId());
         assertNull(response.getName());
@@ -70,7 +70,7 @@ class ItemResponseTest {
 
     @Test
     void bookingInfo_ShouldWorkCorrectly() {
-        ItemResponse.BookingInfo bookingInfo = new ItemResponse.BookingInfo(1L, 2L);
+        ItemDtoResponse.BookingInfo bookingInfo = new ItemDtoResponse.BookingInfo(1L, 2L);
 
         assertEquals(1L, bookingInfo.getId());
         assertEquals(2L, bookingInfo.getBookerId());
@@ -78,7 +78,7 @@ class ItemResponseTest {
 
     @Test
     void bookingInfo_NoArgsConstructor_ShouldWork() {
-        ItemResponse.BookingInfo bookingInfo = new ItemResponse.BookingInfo();
+        ItemDtoResponse.BookingInfo bookingInfo = new ItemDtoResponse.BookingInfo();
 
         assertNull(bookingInfo.getId());
         assertNull(bookingInfo.getBookerId());
@@ -86,7 +86,7 @@ class ItemResponseTest {
 
     @Test
     void bookingInfo_SettersAndGetters_ShouldWork() {
-        ItemResponse.BookingInfo bookingInfo = new ItemResponse.BookingInfo();
+        ItemDtoResponse.BookingInfo bookingInfo = new ItemDtoResponse.BookingInfo();
 
         bookingInfo.setId(5L);
         bookingInfo.setBookerId(10L);
@@ -97,9 +97,9 @@ class ItemResponseTest {
 
     @Test
     void itemResponse_SettersAndGetters_ShouldWork() {
-        ItemResponse response = new ItemResponse();
-        ItemResponse.BookingInfo lastBooking = new ItemResponse.BookingInfo(1L, 2L);
-        ItemResponse.BookingInfo nextBooking = new ItemResponse.BookingInfo(3L, 4L);
+        ItemDtoResponse response = new ItemDtoResponse();
+        ItemDtoResponse.BookingInfo lastBooking = new ItemDtoResponse.BookingInfo(1L, 2L);
+        ItemDtoResponse.BookingInfo nextBooking = new ItemDtoResponse.BookingInfo(3L, 4L);
 
         response.setId(10L);
         response.setName("New Item");

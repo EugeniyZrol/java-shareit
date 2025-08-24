@@ -15,33 +15,33 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping("/{itemId}")
-    public ItemResponse getItemById(
+    public ItemDtoResponse getItemById(
             @PathVariable Long itemId,
             @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
-    public List<ItemResponse> getAllItemsByOwner(
+    public List<ItemDtoResponse> getAllItemsByOwner(
             @RequestHeader(X_SHARER_USER_ID) Long ownerId) {
         return itemService.getAllItemsByOwner(ownerId);
     }
 
     @PostMapping
-    public ItemResponse addItem(@RequestBody ItemRequest itemRequest, // @Validated удален
+    public ItemDtoResponse addItem(@RequestBody ItemDtoRequest itemRequest, // @Validated удален
                                 @RequestHeader(X_SHARER_USER_ID) Long ownerId) {
         return itemService.addItem(itemRequest, ownerId);
     }
 
     @PatchMapping("/{itemId}")
-    public ItemResponse updateItem(@PathVariable Long itemId,
-                                   @RequestBody ItemRequest itemRequest, // @Validated удален
+    public ItemDtoResponse updateItem(@PathVariable Long itemId,
+                                   @RequestBody ItemDtoRequest itemRequest, // @Validated удален
                                    @RequestHeader(X_SHARER_USER_ID) Long ownerId) {
         return itemService.updateItem(itemId, itemRequest, ownerId);
     }
 
     @GetMapping("/search")
-    public List<ItemResponse> searchItems(
+    public List<ItemDtoResponse> searchItems(
             @RequestParam String text,
             @RequestHeader(X_SHARER_USER_ID) Long userId) {
         return itemService.searchAvailableItems(text);

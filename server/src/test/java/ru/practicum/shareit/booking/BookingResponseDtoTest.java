@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
-import ru.practicum.shareit.item.ItemResponse;
+import ru.practicum.shareit.item.ItemDtoResponse;
 import ru.practicum.shareit.user.UserResponse;
 
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ class BookingResponseDtoTest {
     @Test
     void shouldSerializeBookingResponseDto() throws JsonProcessingException {
 
-        ItemResponse item = new ItemResponse();
+        ItemDtoResponse item = new ItemDtoResponse();
         item.setId(1L);
         item.setName("Test Item");
 
